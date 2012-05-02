@@ -2,3 +2,7 @@ getart.c
 bmp2scdasic
 sinegen
 getart
+pcmbankmaker
+.DS_Store
+PCM_____.BNK
+samples/

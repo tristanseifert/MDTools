@@ -15,3 +15,8 @@ echo "========== BUILDING SINE GENERATOR ==========\n\n"
 clang sinegen.c
 mv a.out sinegen
 chmod +x sinegen
+
+echo "========== BUILDING PCM BANK MAKER ==========\n\n"
+clang pcmbankmaker.c
+mv a.out pcmbankmaker
+chmod +x pcmbankmaker
