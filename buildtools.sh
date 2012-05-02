@@ -17,6 +17,6 @@ mv a.out sinegen
 chmod +x sinegen
 
 echo "========== BUILDING PCM BANK MAKER ==========\n\n"
-clang pcmbankmaker.c
+clang pcmbankmaker.c -ggdb
 mv a.out pcmbankmaker
 chmod +x pcmbankmaker

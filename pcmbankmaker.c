@@ -9,6 +9,8 @@
 	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+	Special Thanks go out to GerbilSoft for helping me fix a fucking memory bug I didn't notice.
 */
 
 #import "stdio.h"
@@ -24,7 +26,7 @@
 #import "pcmbankmaker.h"
 
 int main(void) {
-	char *sampleDir = "samples";
+	char sampleDir[256];
 	DIR *dp;
     struct dirent *ep;
     struct dirent *samples[1024];
@@ -37,10 +39,11 @@ int main(void) {
 
 	printf(ANSI_COLOR_GREEN ANSI_BOLD "Tristan Seifert's Magical PCM Bank Generator™\n\n" ANSI_RESET);
 	
-	//printf(ANSI_BOLD "Which directory contains the samples you wish to add to the bank? " ANSI_RESET);
-	//scanf("%s", &sampleDir);
+	printf(ANSI_BOLD "Which directory contains the samples you wish to add to the bank? " ANSI_RESET);
+	scanf("%s", &sampleDir);
 	printf(ANSI_RESET "\n" ANSI_BOLD "Searching directory '%s' for samples...\n" ANSI_RESET, sampleDir);
 
+	memset(samples, 0x00, sizeof(samples));
     dp = opendir(sampleDir);
     
 	if (dp != NULL) {
@@ -51,7 +54,8 @@ int main(void) {
 				printf("Skipping '..' or '.'\n");
 			} else {
         		puts(ep->d_name);
-        		samples[sampleIndex] = ep;
+        		samples[sampleIndex] = (struct dirent*)malloc(sizeof(*samples[sampleIndex]));
+				memcpy(samples[sampleIndex], ep, sizeof(*samples[sampleIndex]));
         		sampleIndex++;
         		numberOfSamples++;
         	}
@@ -76,7 +80,7 @@ int main(void) {
 		
 	for(int i = 0; i < sampleIndex; i++) {	
    		char filename[1025+256];
-		sprintf(filename, "./%s/%s", sampleDir, samples[i]->d_name);
+		snprintf(filename, sizeof(filename), "%s/%s", sampleDir, samples[i]->d_name);
 		printf(ANSI_BOLD "\tProcessing %s... " ANSI_RESET, filename);
 
 		sampleHeader[i] = swap_uint32(sampleHeadOffset);
@@ -92,9 +96,8 @@ int main(void) {
 	printf(ANSI_BOLD "\tWriting samples to file...\n" ANSI_RESET);
 		
 	for(int j = 0; j < sampleIndex; j++) {	
-		sprintf(filename, "./%s/%s", sampleDir, samples[j]->d_name);
-		
-		printf("\t\tWriting sample '%s'...\n", filename);
+		printf("\t\tWriting sample '%s'...\n", samples[j]->d_name);
+		snprintf(filename, sizeof(filename), "%s/%s", sampleDir, samples[j]->d_name);
 		
 		int fileSize = getFileSize(filename);
 		fileBuffer = (char *) malloc(sizeof(char)  * fileSize);
@@ -103,21 +106,30 @@ int main(void) {
 		
 		if(pcmSampleFile != NULL) {
 			printf("\t\t\tOpened File...\n");
+			rewind(pcmSampleFile);
 		
 			printf("\t\t\tReading File...\n");
 		
-			fread(fileBuffer, sizeof(char), fileSize-2, pcmSampleFile);
+			fread(fileBuffer, sizeof(char), fileSize, pcmSampleFile);
+			fwrite(fileBuffer, 1, fileSize, pcmBankFile);
 		} else {
-			printf(ANSI_COLOR_RED "\nCould not read file %s.\n" ANSI_RESET, filename);
+			printf(ANSI_COLOR_RED "\n\t\t\tCould not read file %s.\n" ANSI_RESET, filename);
+			return 253;
 		}
 		
+		printf("\t\t\tDone.\n");
 		fclose(pcmSampleFile);
 		
-		fwrite(&fileBuffer, 1, fileSize, pcmBankFile);
+		free(fileBuffer);
 	}
 	
 	fclose(pcmBankFile);
 	printf(ANSI_RESET);
+	
+	for (size_t i = 0; i < sizeof(samples)/sizeof(samples[0]); i++) {
+		free(samples[i]);
+		samples[i] = NULL;
+	}
 }
 
 int getFileSize(char filename[]) {	

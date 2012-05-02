@@ -2,6 +2,7 @@ This repository contains some tools that are useful in Mega Drive and Sega CD de
 
 *   *sinegen* - generates a simple sine wave to a binary file.
 *   *bmp2scdasic* - converts a 24-bit bmp file to Sega CD ASIC data (incomplete)
+*   *pcmbankmaker* - takes a directory of already Sega CD PCM chip formatted samples and creates a sample bank out of them for an upcomming driver.
 
 These toolse are all written in C and should run on all platforms (Mac OS X is tested, all others unknown)
 
