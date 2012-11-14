@@ -5,3 +5,7 @@ pcmbankmaker
 .DS_Store
 PCM_____.BNK
 samples/
+bmp2scdasic.exe
+sinegen.exe
+getart.exe
+pcmbankmaker.exe

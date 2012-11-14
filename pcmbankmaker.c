@@ -13,17 +13,17 @@
 	Special Thanks go out to GerbilSoft for helping me fix a fucking memory bug I didn't notice.
 */
 
-#import "stdio.h"
-#import "stdint.h"
-#import "stdlib.h"
-#import "math.h"
-#import <sys/types.h>
-#import <sys/stat.h>
-#import <unistd.h>
-#import <dirent.h>
-#import <string.h>
+#include "stdio.h"
+#include "stdint.h"
+#include "stdlib.h"
+#include "math.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <string.h>
 
-#import "pcmbankmaker.h"
+#include "pcmbankmaker.h"
 
 int main(void) {
 	char sampleDir[256];
