@@ -50,8 +50,8 @@ int main(void) {
 		while ((ep = readdir(dp))) {
 			printf(ANSI_BOLD "Found sample: " ANSI_RESET);
 			
-			if(strcmp(".", ep->d_name) == 0 || strcmp(ep->d_name, "..") == 0) {
-				printf("Skipping '..' or '.'\n");
+			if(strcmp(".", ep->d_name) == 0 || strcmp(ep->d_name, "..") == 0 || strcmp(ep->d_name, ".DS_Store") == 0) {
+				printf("Skipping '..' '.DS_Store' or '.'\n");
 			} else {
         		puts(ep->d_name);
         		samples[sampleIndex] = (struct dirent*)malloc(sizeof(*samples[sampleIndex]));
