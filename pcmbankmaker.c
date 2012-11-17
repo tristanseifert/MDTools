@@ -34,7 +34,7 @@ int main(void) {
     int numberOfSamples = 0;
 	char *fileBuffer;
    	char filename[1025+256];
-	uint32_t sampleHeader[1025];
+	uint32_t sampleHeader[1024*2];
 	uint32_t sampleHeadOffset;
 
 	printf(ANSI_COLOR_GREEN ANSI_BOLD "Tristan Seifert's Magical PCM Bank Generator™\n\n" ANSI_RESET);
@@ -76,22 +76,25 @@ int main(void) {
 		return 255;
 	}
 		
-	sampleHeadOffset = numberOfSamples * 4 + 4;
+	// Each header entry is 8 bytes long (4 byte offset, 4 byte length)
+	sampleHeadOffset = numberOfSamples * 8; 
 		
 	for(int i = 0; i < sampleIndex; i++) {	
    		char filename[1025+256];
 		snprintf(filename, sizeof(filename), "%s/%s", sampleDir, samples[i]->d_name);
 		printf(ANSI_BOLD "\tProcessing %s... " ANSI_RESET, filename);
 
-		sampleHeader[i] = swap_uint32(sampleHeadOffset);
-		printf("Placed sample at $%x.\n", swap_uint32(sampleHeader[i]));
+		sampleHeader[0] = swap_uint32(sampleHeadOffset);
+		sampleHeader[1] = swap_uint32(getFileSize(filename));
+		fwrite(&sampleHeader, sizeof(uint32_t), 2, pcmBankFile);
+	
+	
+		printf("Placed sample at $%X (Size $%X)\n", swap_uint32(sampleHeader[0]), getFileSize(filename));
 		
 		sampleHeadOffset += getFileSize(filename);
 	}
 	
 	printf(ANSI_BOLD "\n\tWriting Header to file...\n\n" ANSI_RESET);
-	
-	fwrite(&sampleHeader, sizeof(int), numberOfSamples, pcmBankFile);
 	
 	printf(ANSI_BOLD "\tWriting samples to file...\n" ANSI_RESET);
 		
