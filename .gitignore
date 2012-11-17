@@ -9,3 +9,4 @@ sinegen.exe
 getart.exe
 pcmbankmaker.exe
 sine.bin
+*.dSYM
