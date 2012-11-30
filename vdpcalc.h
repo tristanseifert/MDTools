@@ -8,6 +8,14 @@
 #include <dirent.h>
 #include <string.h>
 
+#define VDP_ADDR_WRITE 0x40000000
+#define VDP_ADDR_WRITE_DMA 0x80
+#define VDP_ADDR_WRITE_COPY 0xC0
+#define VDP_ADDR_READ_VSCR 0x10
+#define VDP_ADDR_WRITE_VSCR 0x40000010
+#define VDP_ADDR_READ_CRAM 0x20
+#define VDP_ADDR_WRITE_CRAM 0xC0000000
+
 #define HI_NIBBLE(b) (((b) >> 4) & 0x0F)
 #define LO_NIBBLE(b) ((b) & 0x0F)
 
