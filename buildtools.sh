@@ -21,7 +21,7 @@ clang pcmbankmaker.c -ggdb
 mv a.out pcmbankmaker
 chmod +x pcmbankmaker
 
-echo "========== BUILDING VDP Calculator ==========\n\n"
+echo "========== BUILDING VDP CALCULATOR ==========\n\n"
 clang vdpcalc.c -ggdb
 mv a.out vdpcalc
 chmod +x vdpcalc

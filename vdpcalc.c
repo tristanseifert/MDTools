@@ -1,4 +1,7 @@
 #include "vdpcalc.h"
+#include "stdio.h"
+#include "stdint.h"
+#include "stdlib.h"
 
 int main(void) {
 	uint16_t input;
@@ -27,17 +30,4 @@ int main(void) {
 	printf("CRAM Write, no DMA:\t$%X\n", baseReadVal | VDP_ADDR_WRITE_CRAM);
 	printf("CRAM Write, DMA:\t$%X\n", baseReadVal | (VDP_ADDR_WRITE_CRAM | VDP_ADDR_WRITE_DMA));
 	printf("CRAM Read:\t\t$%X\n", baseReadVal | VDP_ADDR_READ_CRAM);
-}
-
-int getFileSize(char filename[]) {	
-	struct stat st;
-	stat(filename, &st);
-	int size = st.st_size;
-	
-	return size;
-}
-
-uint32_t swap_uint32(uint32_t val) {
-    val = ((val << 8) & 0xFF00FF00 ) | ((val >> 8) & 0xFF00FF); 
-    return (val << 16) | (val >> 16);
 }

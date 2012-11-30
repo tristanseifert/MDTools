@@ -2,10 +2,7 @@ bmp2scdasic
 sinegen
 getart
 pcmbankmaker
+vdpcalc
 .DS_Store
 PCM_____.BNK
-bmp2scdasic.exe
-sinegen.exe
-getart.exe
-pcmbankmaker.exe
-sine.bin
+*.exe
