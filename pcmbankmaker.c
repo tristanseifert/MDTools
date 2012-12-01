@@ -34,7 +34,7 @@ int main(void) {
     int numberOfSamples = 0;
 	char *fileBuffer;
    	char filename[1025+256];
-	uint32_t sampleHeader[1024*2];
+	uint32_t sampleHeader[2];	// used as a temporary buffer for fwrite
 	uint32_t sampleHeadOffset;
 
 	printf(ANSI_COLOR_GREEN ANSI_BOLD "Tristan Seifert's Magical PCM Bank Generator™\n\n" ANSI_RESET);
@@ -48,7 +48,7 @@ int main(void) {
     
 	if (dp != NULL) {
 		while ((ep = readdir(dp))) {
-			printf(ANSI_BOLD "Found sample: " ANSI_RESET);
+			printf(ANSI_BOLD ANSI_COLOR_GREEN "Found sample: " ANSI_RESET);
 			
 			if(strcmp(".", ep->d_name) == 0 || strcmp(ep->d_name, "..") == 0 || strcmp(ep->d_name, ".DS_Store") == 0) {
 				printf("Skipping '..' '.DS_Store' or '.'\n");
@@ -64,6 +64,7 @@ int main(void) {
         closedir (dp);
 	} else {
 		perror(ANSI_COLOR_RED "Couldn't open the samples directory");
+		return 250;
 	}
 	
 	printf(ANSI_BOLD "\n\nProcessing all samples into file... (will be output as PCM_____.BNK)\n" ANSI_RESET);
@@ -120,7 +121,7 @@ int main(void) {
 			return 253;
 		}
 		
-		printf("\t\t\tDone.\n");
+		printf(ANSI_COLOR_GREEN ANSI_BOLD "\t\t\tDone.\n" ANSI_RESET);
 		fclose(pcmSampleFile);
 		
 		free(fileBuffer);
