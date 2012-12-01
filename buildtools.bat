@@ -18,3 +18,8 @@ move a.exe sinegen.exe
 echo ========== BUILDING PCM BANK MAKER ==========
 gcc pcmbankmaker.c --std=c99
 move a.exe pcmbankmaker.exe
+
+echo ========== BUILDING VDP CALCULATOR ==========
+gcc vdpcalc.c --std=c99
+move a.exe vdpcalc.exe
+vdpcalc.exe

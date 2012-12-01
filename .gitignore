@@ -2,11 +2,16 @@ bmp2scdasic
 sinegen
 getart
 pcmbankmaker
+vdpcalc
 .DS_Store
 PCM_____.BNK
+<<<<<<< HEAD
 bmp2scdasic.exe
 sinegen.exe
 getart.exe
 pcmbankmaker.exe
 sine.bin
 *.dSYM
+=======
+*.exe
+>>>>>>> 1b3ba1e5400b001ed92756f2a0424cf9fa298722
