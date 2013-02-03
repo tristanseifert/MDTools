@@ -25,3 +25,11 @@ echo "========== BUILDING VDP CALCULATOR ==========\n\n"
 clang vdpcalc.c -ggdb
 mv a.out vdpcalc
 chmod +x vdpcalc
+
+
+echo "========== BUILDING MOD2PCM CALCULATOR ==========\n\n"
+clang mod2pcm/mod2pcm.c -ggdb
+mv a.out mod2pcm/mod2pcm
+chmod +x mod2pcm/mod2pcm
+
+./mod2pcm/mod2pcm mod2pcm/stardstm.mod
