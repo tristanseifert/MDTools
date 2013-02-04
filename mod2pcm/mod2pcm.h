@@ -32,7 +32,7 @@
 
 // Various structs we can use to store MOD file info
 
-typedef struct mod_sample {
+typedef struct __attribute__((__packed__)) mod_sample {
 	char title[23]; // MOD file's title is 22, but we need the 0x00 at end
 	uint32_t sample_length; // divided by 2 in file
 	uint8_t sample_finetune;
@@ -43,18 +43,18 @@ typedef struct mod_sample {
 	uint8_t *sampleData;
 } mod_sample;
 
-typedef struct mod_note {
+typedef struct __attribute__((__packed__)) mod_note {
 	uint8_t instrument;
 	uint16_t period;
 	uint8_t fxCommand;
 	uint8_t fxData;
 } mod_note;
 
-typedef struct mod_pattern {
-	mod_note noteData[8][64];
+typedef struct __attribute__((__packed__)) mod_pattern {
+	mod_note *noteData[8][64];
 } mod_pattern;
 
-typedef struct modfile_header {
+typedef struct __attribute__((__packed__)) modfile_header {
 	char title[21]; // MOD file's title is 20, but we need the 0x00 at end
 	mod_sample *samples[31];
 	uint8_t num_patterns;
@@ -64,10 +64,18 @@ typedef struct modfile_header {
 	unsigned char patternSequences[128];
 	char identification[4];
 	uint8_t num_instruments; 
+	
+	uint32_t sampleBankSize;
+	
+	mod_pattern *patterns[128];
 } modfile_header;
 
 // Function declarations
 extern inline uint16_t word_swap(uint16_t in);
+extern inline uint32_t longword_swap(uint32_t val);
+
+extern inline void pointer_Write32To8(uint32_t val, uint8_t *ptr);
+
 extern inline uint8_t read_byte(FILE *fp);
 extern inline uint16_t read_word(FILE *fp);
 extern inline uint32_t read_long(FILE *fp);
@@ -75,3 +83,4 @@ extern inline uint32_t read_long(FILE *fp);
 void populateModInfoStruct(FILE* fp, modfile_header *header);
 void readSampleData(FILE* fp, modfile_header *header);
 uint8_t* createPCMSampleBank(modfile_header *header);
+void readPatternData(FILE *fp, modfile_header *header);

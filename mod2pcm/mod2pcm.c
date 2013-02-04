@@ -76,8 +76,19 @@ int main(int argc, char *argv[]) {
 	printf(ANSI_BOLD "Reading instrument data...\n" ANSI_RESET);
 	readSampleData(modFile, &fileInformation);
 	
-	printf(ANSI_BOLD "Generating PCM sample bank...\n" ANSI_RESET);
+	printf(ANSI_BOLD "\nGenerating PCM sample bank...\n" ANSI_RESET);
 	uint8_t *sampleBankData = createPCMSampleBank(&fileInformation);
+
+	printf("\nSample bank is %i bytes.\n", fileInformation.sampleBankSize);
+
+	FILE *pcmBank = fopen("PCM_____.BNK", "w");
+	fwrite(sampleBankData, 1, fileInformation.sampleBankSize, pcmBank); // Write sample bank.
+	fclose(pcmBank);
+	
+	printf(ANSI_BOLD "\nConverting module pattern data...\n" ANSI_RESET);
+	readPatternData(modFile, &fileInformation);
+
+//	while(1);
 }
 
 // Helper functions
@@ -152,6 +163,7 @@ void readSampleData(FILE* fp, modfile_header *header) {
 // Create PCM sample bank
 uint8_t* createPCMSampleBank(modfile_header *header) {
 	uint8_t *buffer;
+	uint8_t *outputPointer;
 	
 	uint8_t usableInstruments = 0x00;
 	uint32_t instrumentSize = 0x00000000;
@@ -171,14 +183,103 @@ uint8_t* createPCMSampleBank(modfile_header *header) {
 	printf("Allocating 0x%X bytes of memory for PCM bank...", neededMemory);
 	
 	buffer = calloc(neededMemory, 1);
-	printf(" Got memory at 0x%X.\n", buffer);
+	printf(" Got memory at 0x%X.\n", (unsigned int) buffer);
+	outputPointer = buffer; // this way we can shit all over buffer
 	
-	return buffer;
+	header->sampleBankSize = neededMemory;
+	
+	uint32_t sampleOffset = (usableInstruments * 8) + 8;
+	
+	uint32_t *bufferPtr = (uint32_t *) buffer;
+	
+	// Write out sample header.
+	for(int i = 0; i < header->num_instruments; i++) {
+		currentSample = header->samples[i];
+		
+		if(currentSample->sample_length != 0) {
+			printf("Instrument %i: SOff: 0x%X, SLen: 0x%X\n", i, longword_swap(sampleOffset), longword_swap(currentSample->sample_length));
+		
+			*bufferPtr = longword_swap(sampleOffset);
+			bufferPtr++;
+			*bufferPtr = longword_swap(currentSample->sample_length);
+			bufferPtr++;
+			
+			sampleOffset += currentSample->sample_length;
+		}
+	}
+	
+	buffer =  (uint8_t *) bufferPtr;
+	
+	// Write actual sample data.
+	for(int i = 0; i < header->num_instruments; i++) {
+		currentSample = header->samples[i];
+		
+		if(currentSample->sample_length != 0) {
+			printf("Instrument %i: SOff: 0x%X, SLen: 0x%X\n", i, longword_swap(sampleOffset), longword_swap(currentSample->sample_length));
+		
+			uint8_t *sampleArea = currentSample->sampleData;
+				
+			for(int w = 0; w < currentSample->sample_length; w++) {
+				*buffer = *sampleArea;
+				
+				sampleArea++;
+				buffer++;
+			}
+		}
+	}
+	
+	return outputPointer;
+}
+
+void readPatternData(FILE *fp, modfile_header *header) {
+	// First, we need to allocate all the memory we need.
+	
+	for(int i = 0; i < header->highestPattern; i++) {
+		header->patterns[i] = calloc(sizeof(mod_pattern), 1);
+		printf("Allocated %i bytes of memory for pattern data at 0x%X.\n", (int) sizeof(mod_pattern), (unsigned int) header->patterns[i]);
+	}
+	
+	fseek(fp, 0x43C, SEEK_SET);
+	
+	uint16_t instrumentByte;
+	uint8_t byteBuffer;
+	
+	for(int p = 0; p < header->highestPattern; p++) {
+		for(int r = 0; r < 64; r++) {
+			for(int c = 0; c < header->numChannels; c++) {
+				instrumentByte = read_word(fp);
+				byteBuffer = read_byte(fp);
+			
+				header->patterns[p]->noteData[c][r] = malloc(sizeof(mod_note));
+			
+				header->patterns[p]->noteData[c][r]->period = instrumentByte & 0xFFF;
+				header->patterns[p]->noteData[c][r]->instrument = (instrumentByte & 0xF000 >> 0xC) | (byteBuffer & 0xF0);
+				header->patterns[p]->noteData[c][r]->instrument = (instrumentByte & 0xF000 >> 0xC) | (byteBuffer & 0xF0);
+				header->patterns[p]->noteData[c][r]->fxCommand = byteBuffer & 0x0F;
+				header->patterns[p]->noteData[c][r]->fxData = read_byte(fp);
+			}
+		}
+	}
 }
 
 // Inline tools functions
 inline uint16_t word_swap(uint16_t in) {
 	return ((in & 0xFF) << 0x08) | ((in & 0xFF00) >> 0x08);
+}
+
+inline uint32_t longword_swap(uint32_t val) {
+    return ((val >> 24) & 0xFF) | ((val << 8) & 0xFF0000) | ((val >> 8) & 0xFF00) | ((val << 24) & 0xFF000000);
+}
+
+inline void pointer_Write32To8(uint32_t val, uint8_t *ptr) {
+	*ptr = (val >> 24) & 0xFF;
+	ptr++;
+	*ptr = (val >> 16) & 0xFF;
+	ptr++;
+	*ptr = (val >> 8) & 0xFF;
+	ptr++;
+	*ptr = (val & 0xFF);
+	ptr++;
 }
 
 // The functions below read big endian
