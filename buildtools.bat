@@ -25,4 +25,6 @@ move a.exe vdpcalc.exe
 
 echo ========== BUILDING MOD2PCM CALCULATOR ==========
 gcc mod2pcm/mod2pcm.c --std=c99
-move mod2pcm.exe mod2pcm/mod2pcm.exe
+move a.exe mod2pcm/mod2pcm.exe
+
+mod2pcm\mod2pcm.exe mod2pcm\stardstm.mod
