@@ -42,6 +42,10 @@ int main(int argc, char *argv[]) {
 	printf("Reading file \"%s\"...\n", fileInformation.title);
 	printf("\t> File has %i instruments.\n", fileInformation.num_instruments);
 	
+	if(fileInformation.numChannels > 8) {
+		printf(ANSI_COLOR_RED "Files with more than 8 channels are not supported at this time.\n" ANSI_RESET);
+	}
+	
 	for(int i = 0; i < fileInformation.num_instruments; i++) {
 		mod_sample *currentSample = fileInformation.samples[i];
 		printf("\t> Instrument \"%s\", length 0x%X, volume 0x%X, finetume 0x%X, loop start 0x%X, loop length 0x%X\n", 
