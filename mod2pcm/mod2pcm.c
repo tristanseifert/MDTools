@@ -37,13 +37,18 @@ int main(int argc, char *argv[]) {
 	populateModInfoStruct(modFile, &fileInformation);
 	
 	// this is kinda bad but I'm too lazy to figure it out other ways
-	fileInformation.numChannels = 4;
+	// fileInformation.numChannels = 4;
 	
 	printf("Reading file \"%s\"...\n", fileInformation.title);
-	printf("\t> File has %i instruments.\n", fileInformation.num_instruments);
+	printf("\t> File has %i instruments and %i channels.\n", fileInformation.num_instruments, fileInformation.numChannels);
 	
 	if(fileInformation.numChannels > 8) {
 		printf(ANSI_COLOR_RED "Files with more than 8 channels are not supported at this time.\n" ANSI_RESET);
+		return 255;
+	} else if(fileInformation.numChannels == 0) {
+		printf(ANSI_COLOR_RED "The number of channels in this file could not be determined. Check that the file isn't corrupted and try again. (File ID is %.04s)\n" ANSI_RESET,
+			   fileInformation.identification);	
+		return 255;
 	}
 	
 	for(int i = 0; i < fileInformation.num_instruments; i++) {
@@ -105,6 +110,8 @@ void populateModInfoStruct(FILE* fp, modfile_header *header) {
 	fseek(fp, 0x438, SEEK_SET);
 	fread(header->identification, sizeof(char), 4, fp);
 	
+	header->identification[4] = 0x00; // I derped =V
+	
 	if(strcmp("M.K.", header->identification) == 0 || strcmp("8CHN", header->identification) == 0 ||
 	   strcmp("4CHN", header->identification) == 0 || strcmp("6CHN", header->identification) == 0 ||
 	   strcmp("FLT4", header->identification) == 0 || strcmp("FLT8", header->identification) == 0) {
@@ -112,6 +119,17 @@ void populateModInfoStruct(FILE* fp, modfile_header *header) {
 		header->num_instruments = 31;
 	} else {
 		header->num_instruments = 15;	
+	}
+	
+	header->numChannels = 0; // Assume we can't determine the number of channels
+	
+	if(strcmp("M.K.", header->identification) == 0 || strcmp("4CHN", header->identification) == 0 || 
+	   strcmp("FLT4", header->identification) == 0) { // 4 channels
+		header->numChannels = 4;
+	} else if(strcmp("6CHN", header->identification) == 0) { // 6 channels
+		header->numChannels = 6;	
+	} else if(strcmp("8CHN", header->identification) == 0 || strcmp("FLT8", header->identification) == 0) { // 8 channels
+		header->numChannels = 8;	
 	}
 	
 	// Load instruments now.

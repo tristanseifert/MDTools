@@ -62,7 +62,7 @@ typedef struct __attribute__((__packed__)) modfile_header {
 	uint8_t numChannels;
 	uint32_t sampleOffset;
 	unsigned char patternSequences[128];
-	char identification[4];
+	char identification[5];
 	uint8_t num_instruments; 
 	
 	uint32_t sampleBankSize;
