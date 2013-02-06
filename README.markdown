@@ -4,6 +4,7 @@ This repository contains some tools that are useful in Mega Drive and Sega CD de
 *   *bmp2scdasic* - converts a 24-bit bmp file to Sega CD ASIC data (incomplete)
 *   *pcmbankmaker* - takes a directory of already Sega CD PCM chip formatted samples and creates a sample bank out of them for an upcomming driver.
 *	*VDPCalc* - generates 32-bit VDP command values to use to access VRAM, CRAM, and VSCRAM.
+*	*mod2pcm* - converts a MOD file to the format needed for an upcomming PCM driver for the Sega CD. (See tristanseifert/SCDTemplate)
 
 These toolse are all written in C and should run on all platforms (Mac OS X is tested, all others unknown)
 
