@@ -9,6 +9,9 @@
 	Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 	Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
 	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+	Notes:
+	http://www.aes.id.au/modformat.html has useful information about the MOD file format.
 */
 
 #include <stdio.h>
@@ -40,7 +43,7 @@ int main(int argc, char *argv[]) {
 	// fileInformation.numChannels = 4;
 	
 	printf("Reading file \"%s\"...\n", fileInformation.title);
-	printf("\t> File has %i instruments and %i channels.\n", fileInformation.num_instruments, fileInformation.numChannels);
+	printf("\t> File has %i sampless and %i channels.\n", fileInformation.num_instruments, fileInformation.numChannels);
 	
 	if(fileInformation.numChannels > 8) {
 		printf(ANSI_COLOR_RED "Files with more than 8 channels are not supported at this time.\n" ANSI_RESET);
@@ -53,7 +56,7 @@ int main(int argc, char *argv[]) {
 	
 	for(int i = 0; i < fileInformation.num_instruments; i++) {
 		mod_sample *currentSample = fileInformation.samples[i];
-		printf("\t> Instrument \"%s\", length 0x%X, volume 0x%X, finetume 0x%X, loop start 0x%X, loop length 0x%X\n", 
+		printf("\t> Sample \"%s\", length 0x%X, volume 0x%X, finetume 0x%X, loop start 0x%X, loop length 0x%X\n", 
 			   currentSample->title, currentSample->sample_length, currentSample->sample_volume, currentSample->sample_finetune,
 			   currentSample->sample_loopstart, currentSample->sample_looplen);
 	}
@@ -82,7 +85,7 @@ int main(int argc, char *argv[]) {
 	
 	fileInformation.sampleOffset = ((fileInformation.numChannels * 4 * 64) * (fileInformation.highestPattern + 1)) + 0x43C;
 	
-	printf(ANSI_BOLD "Reading instrument data...\n" ANSI_RESET);
+	printf(ANSI_BOLD "Reading sample data...\n" ANSI_RESET);
 	readSampleData(modFile, &fileInformation);
 	
 	printf(ANSI_BOLD "\nGenerating PCM sample bank...\n" ANSI_RESET);
@@ -106,7 +109,7 @@ void populateModInfoStruct(FILE* fp, modfile_header *header) {
 
 	fread(header->title, sizeof(char), 20, fp); // Read title of file.
 	
-	// check how many instruments we have.
+	// check how many samples we have.
 	fseek(fp, 0x438, SEEK_SET);
 	fread(header->identification, sizeof(char), 4, fp);
 	
@@ -115,7 +118,7 @@ void populateModInfoStruct(FILE* fp, modfile_header *header) {
 	if(strcmp("M.K.", header->identification) == 0 || strcmp("8CHN", header->identification) == 0 ||
 	   strcmp("4CHN", header->identification) == 0 || strcmp("6CHN", header->identification) == 0 ||
 	   strcmp("FLT4", header->identification) == 0 || strcmp("FLT8", header->identification) == 0) {
-	// We've got 31 instruments.
+	// We've got 31 samples.
 		header->num_instruments = 31;
 	} else {
 		header->num_instruments = 15;	
@@ -132,7 +135,7 @@ void populateModInfoStruct(FILE* fp, modfile_header *header) {
 		header->numChannels = 8;	
 	}
 	
-	// Load instruments now.
+	// Load samples now.
 	fseek(fp, 0x14, SEEK_SET);
 	mod_sample* currentSample;
 	
@@ -173,7 +176,7 @@ void readSampleData(FILE* fp, modfile_header *header) {
 		// Allocate some memory
 		currentSample->sampleData = calloc(currentSample->sample_length, 1);
 		
-		printf("Allocated 0x%.04X bytes for instrument %.02i...", currentSample->sample_length, i);
+		printf("Allocated 0x%.04X bytes for sample %.02i...", currentSample->sample_length, i);
 		printf(" Got memory at 0x%X.\n", (unsigned int) currentSample->sampleData);
 	
 		fread(currentSample->sampleData, sizeof(currentSample->sampleData), currentSample->sample_length, fp); // Read the sample.
@@ -219,7 +222,7 @@ uint8_t* createPCMSampleBank(modfile_header *header) {
 		currentSample = header->samples[i];
 		
 		if(currentSample->sample_length != 0) {
-			printf("Instrument %i: SOff: 0x%X, SLen: 0x%X\n", i, longword_swap(sampleOffset), longword_swap(currentSample->sample_length));
+			printf("Sample %.02i: SOff: 0x%.05X, SLen: 0x%.05X\n", i, sampleOffset, currentSample->sample_length);
 		
 			*bufferPtr = longword_swap(sampleOffset);
 			bufferPtr++;
@@ -236,9 +239,7 @@ uint8_t* createPCMSampleBank(modfile_header *header) {
 	for(int i = 0; i < header->num_instruments; i++) {
 		currentSample = header->samples[i];
 		
-		if(currentSample->sample_length != 0) {
-			printf("Instrument %i: SOff: 0x%X, SLen: 0x%X\n", i, longword_swap(sampleOffset), longword_swap(currentSample->sample_length));
-		
+		if(currentSample->sample_length != 0) {		
 			uint8_t *sampleArea = currentSample->sampleData;
 				
 			for(int w = 0; w < currentSample->sample_length; w++) {
@@ -261,24 +262,28 @@ void readPatternData(FILE *fp, modfile_header *header) {
 		printf("Allocated %i bytes of memory for pattern data at 0x%X.\n", (int) sizeof(mod_pattern), (unsigned int) header->patterns[i]);
 	}
 	
-	fseek(fp, 0x43C, SEEK_SET);
+	fseek(fp, 0x43C, SEEK_SET); // Seek to place in file that's the start of pattern data
 	
-	uint16_t instrumentByte;
-	uint8_t byteBuffer;
+	/*
+	 * Format of note entry in a pattern: 
+	 * (MSB) wwww xxxxxxxxxxxxxx yyyy zzzzzzzzzzzzzz (LSB)
+	 * 
+     * wwwwyyyy (8 bits) is the sample for this channel/division
+	 * xxxxxxxxxxxx (12 bits) is the sample's period (or effect parameter)
+	 * zzzzzzzzzzzz (12 bits) is the effect for this channel/division
+	 */
 	
 	for(int p = 0; p < header->highestPattern; p++) {
 		for(int r = 0; r < 64; r++) {
-			for(int c = 0; c < header->numChannels; c++) {
-				instrumentByte = read_word(fp);
-				byteBuffer = read_byte(fp);
+			for(int c = 0; c < header->numChannels; c++) {			
+				uint32_t buffer = read_long(fp);
 			
 				header->patterns[p]->noteData[c][r] = malloc(sizeof(mod_note));
 			
-				header->patterns[p]->noteData[c][r]->period = instrumentByte & 0xFFF;
-				header->patterns[p]->noteData[c][r]->instrument = (instrumentByte & 0xF000 >> 0xC) | (byteBuffer & 0xF0);
-				header->patterns[p]->noteData[c][r]->instrument = (instrumentByte & 0xF000 >> 0xC) | (byteBuffer & 0xF0);
-				header->patterns[p]->noteData[c][r]->fxCommand = byteBuffer & 0x0F;
-				header->patterns[p]->noteData[c][r]->fxData = read_byte(fp);
+				header->patterns[p]->noteData[c][r]->period = (buffer & 0xFFF0000) >> 0x10;
+				header->patterns[p]->noteData[c][r]->instrument = ((buffer & 0xF0000000) >> 0x1C) | ((buffer & 0xF000) >> 0x0C);
+				header->patterns[p]->noteData[c][r]->fxCommand = (buffer & 0xF00) >> 0x08;
+				header->patterns[p]->noteData[c][r]->fxData = (buffer & 0xFF);
 			}
 		}
 	}
