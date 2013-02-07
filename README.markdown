@@ -6,7 +6,7 @@ This repository contains some tools that are useful in Mega Drive and Sega CD de
 *	*VDPCalc* - generates 32-bit VDP command values to use to access VRAM, CRAM, and VSCRAM.
 *	*mod2pcm* - converts a MOD file to the format needed for an upcomming PCM driver for the Sega CD. (See tristanseifert/SCDTemplate)
 
-These toolse are all written in C and should run on all platforms (Should compile on Mac OS X (clang) and Windows (gcc,) but other compilers/OS combinations should work, so long as they comply to the C99 standard.)
+These toolse are all written in C and should run on all platforms (Should compile on Mac OS X (clang) and Windows (gcc,) but other compilers/OS combinations should work, so long as they comply with the C99 standard.)
 
 
 These tools are released under the BSD License:

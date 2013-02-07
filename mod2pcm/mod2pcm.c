@@ -196,19 +196,27 @@ uint8_t* createPCMSampleBank(modfile_header *header) {
 	uint8_t usableInstruments = 0x00;
 	uint32_t instrumentSize = 0x00000000;
 	
+	// Allocate memory for the sample map.
+	header->sampleMap = calloc(header->num_instruments, sizeof(header->sampleMap));
+	
 	// Gather total number of actual instruments and their total size.
 	mod_sample* currentSample;
 	for(int i = 0; i < header->num_instruments; i++) {
 		currentSample = header->samples[i];
 		
 		if(currentSample->sample_length != 0) {
+			header->sampleMap[i] = usableInstruments;
 			usableInstruments++;
 			instrumentSize += currentSample->sample_length;
+		} else {
+			header->sampleMap[i] = 0xFF;
 		}
+		
+		printf("Sample %.02i corresponds to PCM sample bank value 0x%.02X\n", i, header->sampleMap[i]);
 	}
 	
 	uint32_t neededMemory = instrumentSize + (usableInstruments * 8);
-	printf("Allocating 0x%X bytes of memory for PCM bank...", neededMemory);
+	printf("\nAllocating 0x%X bytes of memory for PCM bank...", neededMemory);
 	
 	buffer = calloc(neededMemory, 1);
 	printf(" Got memory at 0x%X.\n", (unsigned int) buffer);

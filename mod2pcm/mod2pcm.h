@@ -68,6 +68,8 @@ typedef struct __attribute__((__packed__)) modfile_header {
 	uint32_t sampleBankSize;
 	
 	mod_pattern *patterns[128];
+	
+	uint16_t *sampleMap; // Used to map duplicate/empty samples to the proper samples (or ignore them if value is 0xFF)
 } modfile_header;
 
 // Function declarations
