@@ -47,8 +47,11 @@ int main(int argc, char *argv[]) {
 		return 255;
 	} else if(fileInformation.numChannels == 0) {
 		printf(ANSI_COLOR_RED "The number of channels in this file could not be determined. Check that the file isn't corrupted and try again. (File ID is %.04s)\n" ANSI_RESET,
-			   fileInformation.identification);	
-		return 255;
+			   fileInformation.identification);
+		printf(ANSI_COLOR_RED "Enter number of channels or ^C: ");
+		
+		scanf("%i", &fileInformation.numChannels);
+
 	}
 	
 	for(int i = 0; i < fileInformation.num_instruments; i++) {
