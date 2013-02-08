@@ -82,6 +82,8 @@ extern inline uint8_t read_byte(FILE *fp);
 extern inline uint16_t read_word(FILE *fp);
 extern inline uint32_t read_long(FILE *fp);
 
+extern inline uint16_t MODFreqToNote(uint16_t freq);
+
 void populateModInfoStruct(FILE* fp, modfile_header *header);
 void readSampleData(FILE* fp, modfile_header *header);
 uint8_t* createPCMSampleBank(modfile_header *header);

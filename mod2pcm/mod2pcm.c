@@ -341,3 +341,8 @@ inline uint32_t read_long(FILE *fp) {
 	
 	return buffer[3] | buffer[2] << 0x08 | buffer[1] << 0x10 | buffer[0] << 0x18; 
 }
+
+// Various inlined utility functions
+inline uint16_t MODFreqToNote(uint16_t freq) {
+
+}
