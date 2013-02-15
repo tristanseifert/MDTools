@@ -344,5 +344,5 @@ inline uint32_t read_long(FILE *fp) {
 
 // Various inlined utility functions
 inline uint16_t MODFreqToNote(uint16_t freq) {
-
+	return 0;
 }
