@@ -57,11 +57,21 @@ int main(int argc, char *argv[]) {
 
 	}
 	
+	int discardedSamples = 0;
+	
 	for(int i = 0; i < fileInformation.num_instruments; i++) {
 		mod_sample *currentSample = fileInformation.samples[i];
-		printf("\t> Sample \"%s\", length 0x%X, volume 0x%X, finetume 0x%X, loop start 0x%X, loop length 0x%X\n", 
-			   currentSample->title, currentSample->sample_length, currentSample->sample_volume, currentSample->sample_finetune,
-			   currentSample->sample_loopstart, currentSample->sample_looplen);
+		if(currentSample->sample_length == 0x00) {
+			discardedSamples++;
+		} else {
+			printf("\t> Sample \"%s\", length 0x%X, volume 0x%X, finetume 0x%X, loop start 0x%X, loop length 0x%X\n", 
+				   currentSample->title, currentSample->sample_length, currentSample->sample_volume, currentSample->sample_finetune,
+				   currentSample->sample_loopstart, currentSample->sample_looplen);
+		}
+	}
+
+	if(discardedSamples > 0) {
+		printf("\nNot displaying %i samples because their length is 0x0000.\n", discardedSamples);
 	}
 
 	printf(ANSI_BOLD "\nPattern table:\n" ANSI_RESET);
@@ -216,10 +226,10 @@ uint8_t* createPCMSampleBank(modfile_header *header) {
 	}
 	
 	uint32_t neededMemory = instrumentSize + (usableInstruments * 8);
-	printf("\nAllocating 0x%X bytes of memory for PCM bank...", neededMemory);
+	printf(ANSI_BOLD "\nAllocating 0x%X bytes of memory for PCM bank...", neededMemory);
 	
 	buffer = calloc(neededMemory, 1);
-	printf(" Got memory at 0x%X.\n", (unsigned int) buffer);
+	printf(" Got memory at 0x%X.\n" ANSI_RESET, (unsigned int) buffer);
 	outputPointer = buffer; // this way we can shit all over buffer
 	
 	header->sampleBankSize = neededMemory;
@@ -343,6 +353,11 @@ inline uint32_t read_long(FILE *fp) {
 }
 
 // Various inlined utility functions
-inline uint16_t MODFreqToNote(uint16_t freq) {
 
+/*
+ * Converts the MOD period value to the PCM driver note value. See the 
+ * MOD2PCMCorrelation.xlsx file for some data correlations and fun little graphs.
+ */
+inline uint16_t MODFreqToNote(uint16_t freq) {
+	return 0;
 }
