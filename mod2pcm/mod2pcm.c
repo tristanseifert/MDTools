@@ -286,7 +286,7 @@ void readPatternData(FILE *fp, modfile_header *header) {
 	
 	for(int p = 0; p < header->highestPattern; p++) {
 		for(int r = 0; r < 64; r++) {
-			for(int c = 0; c < header->numChannels; c++) {			
+			for(int c = 0; c < header->numChannels; c++) {
 				uint32_t buffer = read_long(fp);
 			
 				header->patterns[p]->noteData[c][r] = malloc(sizeof(mod_note));

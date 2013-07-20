@@ -5,8 +5,9 @@ This repository contains some tools that are useful in Mega Drive and Sega CD de
 *   *pcmbankmaker* - takes a directory of already Sega CD PCM chip formatted samples and creates a sample bank out of them for an upcomming driver.
 *	*VDPCalc* - generates 32-bit VDP command values to use to access VRAM, CRAM, and VSCRAM.
 *	*mod2pcm* - converts a MOD file to the format needed for an upcomming PCM driver for the Sega CD. (See tristanseifert/SCDTemplate)
+*	*sign2signmag* - converts a regular Two's Compliment sample file to the sign/magnitude format that the Sega CD PCM chip requires.
 
-These toolse are all written in C and should run on all platforms (Should compile on Mac OS X (clang) and Windows (gcc,) but other compilers/OS combinations should work, so long as they comply with the C99 standard.)
+These tools are all written in C and should run on all platforms (compiled on Mac OS X (clang) and Windows (gcc) are verified) but other compilers/OS combinations should work, so long as they comply with the C99 standard.)
 
 
 These tools are released under the BSD License:

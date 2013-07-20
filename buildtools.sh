@@ -32,4 +32,10 @@ clang mod2pcm/mod2pcm.c -ggdb
 mv a.out mod2pcm/mod2pcm
 chmod +x mod2pcm/mod2pcm
 
-./mod2pcm/mod2pcm mod2pcm/stardstm.mod
+echo "========== BUILDING TWO'S COMPLIMENT TO SIGN/MAG CONVERTER ==========\n\n"
+clang sign2signmag.c -ggdb
+mv a.out sign2signmag
+chmod +x sign2signmag
+
+
+#./mod2pcm/mod2pcm mod2pcm/stardstm.mod
